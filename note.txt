@@ -79,3 +79,36 @@ kubectl get svc ${Service名}
 
 kubectl -n ingress-nginx get service,pod # NameSpace名（ingress-nginx）のserviceとpodを一覧表示
 
+
+### 参考資料
+Docker/Kubernetes 実践コンテナ開発入門
+ - 1章「Dockerの基礎」
+ - 2章「Dockerコンテナのデプロイ」
+ - 5章「Kubernetes入門」
+
+ https://snyt45.com/posts/20210806/wsl2-multiple-linux-distribution/
+ - Windows10+WSL2+Docker】ローカル環境を汚さずに使い捨ての開発環境を手に入れる
+
+ https://codeaid.jp/blog/docker-windowswsl2/
+ - Docker Desktop for WindowsをWSL2で使う
+
+ https://qiita.com/amuyikam/items/01a8c16e3ddbcc734a46
+  - docker上のアプリにlocalhostでアクセスしたらERR_EMPTY_RESPONSEが出る
+
+https://qiita.com/A-Kira/items/0dda255e00771f556e2a
+ - Docker × Java シンプルすぎる開発環境構築
+
+ https://qiita.com/nj_ryoo0/items/a42c47436b77310f5430
+  - VSCodeのRemote WSLでWSLを快適に使う
+
+https://snowsystem.net/other/windows/vscode-wsl-run-error/
+ - WSL2からVSCodeが起動しない場合の対処方法
+
+https://kagasu.hatenablog.com/entry/2020/01/02/155532
+ - WSL2を再起動する方法
+
+https://www.sejuku.net/blog/8224
+ - GitHub入門
+
+https://note.kiriukun.com/entry/20210904-github-password-authentication-was-removed
+ - GitHubのリポジトリにアクセス時に「remote: Support for password authentication was removed on August 13, 2021.」エラー
