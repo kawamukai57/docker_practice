@@ -1,0 +1,81 @@
+### DockerイメージとDockerコンテナの操作
+
+docker image pull ${dockerイメージ名} # dockerイメージの取得
+
+docker image ls # 作成されたイメージの確認
+
+docker image build -t ${イメージ名:タグ名} Dockerfile配置のディレクトリパス # dockerイメージのビルド
+ex) docker image build -t example/echo:latest: .
+
+docker container run -d -p ${ポートフォワーディング} ${イメージ名:タグ名} # dockerコンテナの実行 -d…バックグラウンドで実行 -p…ポートフォワーディング
+
+* ポートフォワーディング
+    * https://qiita.com/tatsuo-iriyama/items/e4bf2404411343116e3e
+    * ポートの紐づけというイメージ
+    * Dockerを仮想環境で開発する場合、コンテナの外からcurlを実行しても、コンテナの外からコンテナポート（コンテナ内に限定されたポート）を直接利用できない
+    * HTTPリクエストを受けるアプリケーションの場合、コンテナの外から来たリクエストをコンテナ内へ到達させる必要がある
+    * ポートフォワーディングを使うと、ホストマシンのポートをコンテナポートに紐づけ、コンテナの外から来た通信をコンテナポートに転送できる
+    * 以下、コマンド例
+    * docker container run -d -p 9000:8080 example/echo:latest
+    * ※ ただし、container中のサーバがlocalhostでlistenしていると、ホストマシンからアクセスした際にエラーが発生する
+    * ⇒ 0.0.0.0でサーバを建てると、そのホスト(今回の場合container)が持つ全てのインターフェースでLISTENする
+    * 　 一般的には、localhost(または127.0.0.1)ではなく０．０．０．０でサーバーを建てると良い（詳細は以下）
+    * https://qiita.com/amuyikam/items/01a8c16e3ddbcc734a46
+
+docker container ls # 実行中のコンテナ一覧を表示
+
+docker container exec -it ${コンテナ名} sh # 起動中のコンテナ内に入る
+
+docker container stop ${コンテナIDまたはコンテナ名} # コンテナの停止
+
+
+### docker-composeによるコンテナの操作
+
+docker-compose up -d # コンテナの起動
+
+docker-compose down # コンテナの停止
+
+
+### Kubernetesクラスタの操作
+
+kubectl apply -f ${yamlファイル名} # マニフェストファイルの内容を反映（applyは新規作成、および内容に変更があったときに反映される）
+
+kubectl get pod # Podの一覧を取得
+
+kubectl exec -it ${Pod名} sh -c ${コンテナ名} # 起動中のコンテナ内に入る
+
+kubectl delete pod ${pod名} # Podの削除
+
+kubectl delete -f ${yamlファイル名} # マニュフェストファイルに記述されているリソースの削除
+
+kubectl get svc ${Service名}
+
+* ReplicaSet
+    * 同じ仕様のPodを複数生成・管理するためのリソース
+    * Podを定義したマニフェストファイルからは１つのPodしか作成できないため、同一のPodを複数実行することで可用性を高めたい時に必要
+* Deployment
+    * ReplicaSetを管理・操作するために提供されているリソース
+    * 実運用では、ReplicaSetを直接用いることはなく、Deploymentのマニフェストファイルを扱う運用にすることがほとんど
+* Service
+    * Podの集合（主にReplicaSet）に対する経路やサービスディスカバリを提供するためのリソース
+    * サービスディスカバリ・・・APIへの接続先が動的に変わる場合に、クライアントが接続先を切り替えるのではなく、クライアントから一貫した名前でアクセスできるようにする仕組み
+    * ClusterIP Service
+        * yaml内で定義できるデフォルトのService
+        * Kubernetesクラスタ上の内部IPアドレスにServiceを公開できる
+        * これにより、あるPodから別のPod群へのアクセスはServiceを介して行うことができ、かつService名で名前解決できるようになる
+        * ※ ただし、外からはリーチできない
+    * NodePort Service
+        * クラスタ外からアクセスできるService
+    * LoadBalancer Service
+        * ローカルKubernetes環境では利用できないService
+    * ExternalName Service  
+        * selectorもport定義も持たないかなり特殊なService
+        * Kubernetesクラスタ内から外部のホストを解決するためのエイリアスを提供する
+* Ingress
+    * ServiceのKubernetesクラスタの外への公開のために使用
+    * NodePort Serviceを使用することで、Kubernetesクラスタの外にServiceを公開することはできる
+    * ただし、上記だとL4層レベルまでしか扱えないため、HTTP/HTTPSのようにパスベースでの転送先のServiceを切り替えるといったL7層レベルの制御までは行えない
+    * 素の状態のローカルKubernetes環境ではIngressを使ったServiceの公開をすることはできないため、クラスタ外からのHTTPリクエストをServiceにルーティングするためのnginx_ingress_controllerが必要となる
+
+kubectl -n ingress-nginx get service,pod # NameSpace名（ingress-nginx）のserviceとpodを一覧表示
+
